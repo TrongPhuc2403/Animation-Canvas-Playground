@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="32dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:id="@+id/logoContainer"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_logo"
+                    android:elevation="6dp">
+
+                    <ImageView
+                        android:id="@+id/ivLogo"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/ic_sparkle" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvMainTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:lineSpacingMultiplier="0.95"
+                        android:text="@string/main_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="26sp" />
+
+                    <TextView
+                        android:id="@+id/tvMainSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/main_subtitle"
+                        android:textAppearance="@style/TextAppearance.Playground.Caption" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Sân chơi tương tác thu nhỏ ngay trên trang chủ (chạm để tương tác với các khối hình) -->
+            <FrameLayout
+                android:id="@+id/bannerToyBox"
+                android:layout_width="match_parent"
+                android:layout_height="118dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_stage"
+                android:clipChildren="true" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/main_section"
+            android:textAppearance="@style/TextAppearance.Playground.Label" />
+
+        <!-- Card 1: Animation Demo -->
+        <LinearLayout
+            android:id="@+id/cardAnimation"
+            style="@style/MainCard"
+            android:background="@drawable/bg_card_animation"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/previewAnimation"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                android:background="@drawable/bg_icon_circle" />
+
+            <LinearLayout style="@style/MainCardTextBox">
+
+                <TextView
+                    style="@style/MainCardTitle"
+                    android:text="@string/card_animation_title" />
+
+                <TextView
+                    style="@style/MainCardDesc"
+                    android:text="@string/card_animation_desc" />
+            </LinearLayout>
+
+            <ImageView
+                style="@style/MainCardChevron"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <!-- Card 2: Canvas Drawing -->
+        <LinearLayout
+            android:id="@+id/cardDrawing"
+            style="@style/MainCard"
+            android:background="@drawable/bg_card_drawing"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/previewDrawing"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                android:background="@drawable/bg_icon_circle" />
+
+            <LinearLayout style="@style/MainCardTextBox">
+
+                <TextView
+                    style="@style/MainCardTitle"
+                    android:text="@string/card_drawing_title" />
+
+                <TextView
+                    style="@style/MainCardDesc"
+                    android:text="@string/card_drawing_desc" />
+            </LinearLayout>
+
+            <ImageView
+                style="@style/MainCardChevron"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <!-- Card 3: Particle Fireworks -->
+        <LinearLayout
+            android:id="@+id/cardParticle"
+            style="@style/MainCard"
+            android:background="@drawable/bg_card_particle"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/previewParticle"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                android:background="@drawable/bg_icon_circle" />
+
+            <LinearLayout style="@style/MainCardTextBox">
+
+                <TextView
+                    style="@style/MainCardTitle"
+                    android:text="@string/card_particle_title" />
+
+                <TextView
+                    style="@style/MainCardDesc"
+                    android:text="@string/card_particle_desc" />
+            </LinearLayout>
+
+            <ImageView
+                style="@style/MainCardChevron"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/main_footer"
+            android:textAppearance="@style/TextAppearance.Playground.Caption"
+            android:textSize="12.5sp" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Animation &amp; Canvas</string>
+
+    <!-- Main -->
+    <string name="main_title">Animation &amp; Canvas\nPlayground</string>
+    <string name="main_subtitle">Ứng dụng minh họa giữa kỳ · Phát triển ứng dụng di động</string>
+    <string name="main_section">Danh mục chức năng</string>
+
+    <string name="card_animation_title">Animation Demo</string>
+    <string name="card_animation_desc">Minh họa Move, Rotate, Scale, Fade, Bounce, Wave và kết hợp bằng AnimatorSet</string>
+
+    <string name="card_drawing_title">Canvas Drawing</string>
+    <string name="card_drawing_desc">Vẽ tay mượt, đổi màu, chỉnh nét cọ, vẽ hình cơ bản, đối xứng và phát lại nét vẽ</string>
+
+    <string name="card_particle_title">Particle Fireworks</string>
+    <string name="card_particle_desc">Chạm màn hình tạo pháo hoa: chuyển động vật lý, trọng lực và hiệu ứng mờ dần</string>
+
+    <string name="main_footer">Nhóm thực hiện: Hoàn · Long · Phúc</string>
+
+    <!-- Common -->
+    <string name="back">Quay lại</string>
+
+    <!-- Animation -->
+    <string name="anim_title">Animation Demo</string>
+    <string name="anim_subtitle">ObjectAnimator · AnimatorSet · Interpolator</string>
+    <string name="anim_interpolator">Kiểu gia tốc (Interpolator)</string>
+    <string name="anim_duration">Thời lượng</string>
+    <string name="anim_loop">Chạy lặp lại liên tục</string>
+    <string name="anim_move">Move</string>
+    <string name="anim_rotate">Rotate</string>
+    <string name="anim_scale">Scale</string>
+    <string name="anim_fade">Fade</string>
+    <string name="anim_bounce">Bounce</string>
+    <string name="anim_orbit">Orbit</string>
+    <string name="anim_shake">Wave</string>
+    <string name="anim_combo">Combo</string>
+    <string name="anim_reset">Đặt lại vị trí</string>
+    <string name="anim_hint">Chạm vào sân khấu để di chuyển nhân vật tới điểm chạm</string>
+
+    <!-- Drawing -->
+    <string name="draw_title">Canvas Drawing</string>
+    <string name="draw_subtitle">Custom View · Path · Paint · Touch</string>
+    <string name="draw_undo">Undo</string>
+    <string name="draw_redo">Redo</string>
+    <string name="draw_clear">Clear</string>
+    <string name="tool_brush">Bút</string>
+    <string name="tool_line">Đường</string>
+    <string name="tool_rect">Khung</string>
+    <string name="tool_circle">Tròn</string>
+    <string name="tool_star">Sao</string>
+    <string name="tool_eraser">Tẩy</string>
+    <string name="draw_size">Cỡ nét</string>
+    <string name="draw_cleared">Đã xóa bảng vẽ</string>
+    <string name="draw_replay_done">Đã phát lại xong các nét vẽ</string>
+
+    <!-- Particle -->
+    <string name="particle_title">Particle Fireworks</string>
+    <string name="particle_subtitle">Chuyển động hạt · Trọng lực · Mờ dần</string>
+    <string name="particle_hint">Chạm màn hình để bắn pháo hoa\nKéo ngón tay để tạo vệt sáng</string>
+    <string name="particle_gravity">Trọng lực</string>
+    <string name="particle_auto">Tự động bắn</string>
+    <string name="particle_launch">Bắn pháo</string>
+    <string name="particle_salvo">Bắn 5 quả</string>
+    <string name="particle_clear">Xoá</string>
+</resources>

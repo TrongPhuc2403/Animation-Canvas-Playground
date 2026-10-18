@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    tools:context=".particle.ParticleActivity">
+
+    <!-- Custom View vẽ particle toàn màn hình -->
+    <com.example.animationcanvas.particle.ParticleView
+        android:id="@+id/particleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Header nổi -->
+    <LinearLayout
+        style="@style/ScreenHeader"
+        android:layout_gravity="top">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/RoundIconButton"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_back" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/particle_title"
+                android:textAppearance="@style/TextAppearance.Playground.Title" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/particle_subtitle"
+                android:textAppearance="@style/TextAppearance.Playground.Caption" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.35"
+        android:text="@string/particle_hint"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
+
+    <!-- Bảng điều khiển dạng kính mờ phía dưới -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="14dp"
+        android:background="@drawable/bg_panel_glass"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <!-- Chọn kiểu nổ hình học (6 kiểu) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupPattern"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <!-- Thanh trượt Trọng lực -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/particle_gravity"
+                android:textAppearance="@style/TextAppearance.Playground.Label" />
+
+            <SeekBar
+                android:id="@+id/seekGravity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="1500"
+                android:progressTint="@color/accent_cyan"
+                android:thumbTint="@color/accent_cyan" />
+
+            <TextView
+                android:id="@+id/tvGravity"
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:gravity="end"
+                android:textColor="@color/accent_cyan"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="500" />
+        </LinearLayout>
+
+        <!-- Công tắc Tự động bắn -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/particle_auto"
+                android:textAppearance="@style/TextAppearance.Playground.Label" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchAuto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/particle_auto" />
+        </LinearLayout>
+
+        <!-- Hàng nút: Bắn 1 quả | Đại tiệc (x5) | Xoá -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLaunch"
+                style="@style/Widget.Playground.Button"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="1.15"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/particle_launch"
+                android:textSize="12.5sp"
+                app:backgroundTint="@color/accent_purple"
+                app:icon="@drawable/ic_rocket"
+                app:iconSize="16dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSalvo"
+                style="@style/Widget.Playground.Button"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1.25"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/particle_salvo"
+                android:textSize="12.5sp"
+                app:backgroundTint="@color/accent_pink" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearParticles"
+                style="@style/Widget.Playground.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="0.75"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:text="@string/particle_clear"
+                android:textSize="12.5sp" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
