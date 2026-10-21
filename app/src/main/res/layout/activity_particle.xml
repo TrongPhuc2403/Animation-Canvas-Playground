@@ -7,7 +7,7 @@
     android:background="@color/bg_dark"
     tools:context=".particle.ParticleActivity">
 
-    <!-- Custom View vẽ particle toàn màn hình -->
+    <!-- Custom View mô phỏng hệ thống hạt toàn màn hình -->
     <com.example.animationcanvas.particle.ParticleView
         android:id="@+id/particleView"
         android:layout_width="match_parent"
@@ -50,13 +50,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="@drawable/bg_code"
         android:gravity="center"
         android:lineSpacingMultiplier="1.35"
+        android:paddingStart="18dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="12dp"
         android:text="@string/particle_hint"
         android:textColor="@color/text_secondary"
-        android:textSize="15sp" />
+        android:textSize="13.5sp" />
 
-    <!-- Bảng điều khiển dạng kính mờ phía dưới -->
+    <!-- Bảng điều khiển Studio Dock phía dưới -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -101,8 +106,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:max="1500"
-                android:progressTint="@color/accent_cyan"
-                android:thumbTint="@color/accent_cyan" />
+                android:progressTint="@color/accent_primary"
+                android:thumbTint="@color/accent_primary" />
 
             <TextView
                 android:id="@+id/tvGravity"
@@ -110,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:gravity="end"
-                android:textColor="@color/accent_cyan"
+                android:textColor="@color/accent_primary"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 tools:text="500" />
@@ -138,7 +143,7 @@
                 android:contentDescription="@string/particle_auto" />
         </LinearLayout>
 
-        <!-- Hàng nút: Bắn 1 quả | Đại tiệc (x5) | Xoá -->
+        <!-- Hàng nút đồng bộ thiết kế Studio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -155,22 +160,23 @@
                 android:paddingEnd="8dp"
                 android:text="@string/particle_launch"
                 android:textSize="12.5sp"
-                app:backgroundTint="@color/accent_purple"
+                app:backgroundTint="@color/accent_primary"
                 app:icon="@drawable/ic_rocket"
                 app:iconSize="16dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSalvo"
-                style="@style/Widget.Playground.Button"
+                style="@style/Widget.Playground.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="46dp"
                 android:layout_marginStart="8dp"
-                android:layout_weight="1.25"
+                android:layout_weight="1.2"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/particle_salvo"
+                android:textColor="@color/text_primary"
                 android:textSize="12.5sp"
-                app:backgroundTint="@color/accent_pink" />
+                app:strokeColor="@color/accent_purple" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClearParticles"
@@ -182,6 +188,7 @@
                 android:paddingStart="6dp"
                 android:paddingEnd="6dp"
                 android:text="@string/particle_clear"
+                android:textColor="@color/text_secondary"
                 android:textSize="12.5sp" />
         </LinearLayout>
     </LinearLayout>

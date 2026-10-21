@@ -79,12 +79,13 @@ public class DrawingView extends View {
     private boolean fillShapes = false;
     private boolean darkCanvas = false;
 
-    private int paperColor = Color.parseColor("#FDFCFF");
+    private int paperColor = Color.parseColor("#F8F6F1");
 
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mirrorAxisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint dropPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint hudPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path mirrorTempPath = new Path();
     private final Matrix mirrorMatrix = new Matrix();
 
@@ -114,7 +115,10 @@ public class DrawingView extends View {
         cursorPaint.setStrokeWidth(1.8f * density);
         dropPaint.setStyle(Paint.Style.FILL);
 
-        final float radius = 20f * density;
+        hudPaint.setTextSize(10f * density);
+        hudPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
+
+        final float radius = 18f * density;
         setOutlineProvider(new ViewOutlineProvider() {
             @Override
             public void getOutline(View view, Outline outline) {
@@ -175,13 +179,29 @@ public class DrawingView extends View {
             postInvalidateOnAnimation();
         }
 
-        // Vòng tròn đầu bút khi đang chạm
+        // Vòng tròn đầu bút & Thước đo kích thước hình học khi đang kéo
         if (isTouching && touchX >= 0 && touchY >= 0) {
             cursorPaint.setColor(tool == Tool.ERASER ? Color.GRAY : color);
             cursorPaint.setAlpha(170);
             float r = Math.max(strokeWidth / 2f + 5f * density, 11f * density);
             canvas.drawCircle(touchX, touchY, r, cursorPaint);
+
+            if (tool != Tool.BRUSH && tool != Tool.ERASER && moved) {
+                canvas.drawLine(startX, startY, touchX, touchY, mirrorAxisPaint);
+                int wDp = Math.round(Math.abs(touchX - startX) / density);
+                int hDp = Math.round(Math.abs(touchY - startY) / density);
+                hudPaint.setColor(color);
+                canvas.drawText(wDp + " × " + hDp + " dp",
+                        touchX + 12f * density, Math.max(24f * density, touchY - 12f * density), hudPaint);
+            }
         }
+
+        // Thanh trạng thái Artboard góc dưới trái
+        hudPaint.setColor(darkCanvas ? Color.parseColor("#889EA4B4") : Color.parseColor("#8864748B"));
+        String status = "ARTBOARD · " + strokes.size() + " STROKES"
+                + (mirrorMode ? " · SYMMETRY 4X" : "")
+                + (neonMode ? " · GLOW" : "");
+        canvas.drawText(status, 14f * density, h - 12f * density, hudPaint);
     }
 
     private void drawDotGrid(Canvas canvas, int w, int h) {
@@ -455,7 +475,7 @@ public class DrawingView extends View {
 
     public void setDarkCanvas(boolean dark) {
         this.darkCanvas = dark;
-        this.paperColor = dark ? Color.parseColor("#141824") : Color.parseColor("#FDFCFF");
+        this.paperColor = dark ? Color.parseColor("#14161E") : Color.parseColor("#F8F6F1");
         invalidate();
     }
 

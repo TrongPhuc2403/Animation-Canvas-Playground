@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".animation.AnimationActivity">
 
-    <!-- Header -->
+    <!-- Header Studio -->
     <LinearLayout style="@style/ScreenHeader">
 
         <ImageButton
@@ -45,8 +45,8 @@
             android:minWidth="0dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:text="Nhân vật: Bóng"
-            android:textSize="12sp" />
+            android:text="Vật thể: Lăng kính"
+            android:textSize="11.5sp" />
     </LinearLayout>
 
     <ScrollView
@@ -54,7 +54,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true"
-        android:overScrollMode="never">
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,11 +65,11 @@
             android:paddingEnd="16dp"
             android:paddingBottom="22dp">
 
-            <!-- Sân khấu tương tác -->
+            <!-- Sân khấu Viewport tương tác -->
             <FrameLayout
                 android:id="@+id/stage"
                 android:layout_width="match_parent"
-                android:layout_height="265dp"
+                android:layout_height="268dp"
                 android:background="@drawable/bg_stage"
                 android:clipChildren="true">
 
@@ -82,53 +83,74 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:layout_margin="10dp"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginEnd="14dp"
                     android:background="@drawable/bg_code"
-                    android:elevation="6dp"
+                    android:elevation="4dp"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.15"
-                    android:padding="9dp"
+                    android:paddingStart="10dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="7dp"
                     android:text="@string/anim_hint"
                     android:textColor="@color/text_code"
-                    android:textSize="11sp" />
+                    android:textSize="10.5sp" />
 
                 <View
                     android:id="@+id/shadow"
-                    android:layout_width="62dp"
-                    android:layout_height="12dp"
+                    android:layout_width="58dp"
+                    android:layout_height="10dp"
                     android:layout_gravity="center"
                     android:layout_marginTop="52dp"
-                    android:alpha="0.38"
+                    android:alpha="0.35"
                     android:background="@drawable/bg_code" />
 
-                <!-- Nhân vật chính (Custom View có mắt chớp & biểu cảm chuyển động) -->
+                <!-- Vật thể chính (Custom View đa lớp + phản hồi vận tốc) -->
                 <FrameLayout
                     android:id="@+id/target"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
+                    android:layout_width="78dp"
+                    android:layout_height="78dp"
                     android:layout_gravity="center"
-                    android:elevation="10dp" />
+                    android:elevation="8dp" />
             </FrameLayout>
 
-            <!-- Đường cong gia tốc Interpolator -->
+            <!-- Đồ thị Đường cong gia tốc Interpolator -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_panel"
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/anim_interpolator"
-                    android:textAppearance="@style/TextAppearance.Playground.Label" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/anim_interpolator"
+                        android:textAppearance="@style/TextAppearance.Playground.Label" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="y = f(t)"
+                        android:textColor="@color/accent_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/interpGraphHolder"
                     android:layout_width="match_parent"
-                    android:layout_height="62dp"
+                    android:layout_height="64dp"
                     android:layout_marginTop="6dp" />
 
                 <HorizontalScrollView
@@ -151,7 +173,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/bg_panel"
                 android:orientation="vertical"
                 android:padding="12dp">
@@ -174,8 +196,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textColor="@color/accent_primary"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
                         tools:text="900 ms" />
                 </LinearLayout>
 
@@ -185,8 +208,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:max="2800"
-                    android:progressTint="@color/accent_purple"
-                    android:thumbTint="@color/accent_pink" />
+                    android:progressTint="@color/accent_primary"
+                    android:thumbTint="@color/accent_primary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -209,137 +232,130 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Hàng nút 1 -->
+            <!-- Lưới điều khiển 8 chế độ Animation (Đồng bộ bề mặt Studio, nổi bật nút đang chọn) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMove"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_move"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_purple" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRotate"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_rotate"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_blue" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnScale"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_scale"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_teal" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFade"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_fade"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_cyan" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <!-- Hàng nút 2 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBounce"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_bounce"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_orange" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnOrbit"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_orbit"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_emerald" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShake"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_shake"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_amber" />
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCombo"
-                    style="@style/Widget.Playground.Button"
+                    style="@style/Widget.Playground.Button.Outlined"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/anim_combo"
-                    android:textSize="12.5sp"
-                    app:backgroundTint="@color/accent_pink" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReset"
                 style="@style/Widget.Playground.Button.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="10dp"
-                android:text="@string/anim_reset" />
+                android:text="@string/anim_reset"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

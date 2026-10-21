@@ -111,11 +111,11 @@ public class ParticleView extends View {
         wavePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.ADD));
 
         starPaint.setColor(Color.WHITE);
-        cityPaint.setColor(Color.parseColor("#FF060714"));
+        cityPaint.setColor(Color.parseColor("#FF0B0D14"));
 
         hudBgPaint.setColor(Color.parseColor("#B30A0C1D"));
-        hudPaint.setColor(Color.parseColor("#E2E8F0"));
-        hudPaint.setTextSize(11f * density);
+        hudPaint.setColor(Color.parseColor("#999EA4B4"));
+        hudPaint.setTextSize(10.5f * density);
         hudPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
 
         for (int i = 0; i < STAR_COUNT; i++) {
@@ -131,12 +131,15 @@ public class ParticleView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         bgPaint.setShader(new LinearGradient(0, 0, 0, h,
                 new int[]{
-                        Color.parseColor("#040510"),
-                        Color.parseColor("#0C102B"),
-                        Color.parseColor("#1B1438"),
-                        Color.parseColor("#28133B")
+                        Color.parseColor("#0A0C12"),
+                        Color.parseColor("#111521"),
+                        Color.parseColor("#171C2C"),
+                        Color.parseColor("#1D2235")
                 },
                 new float[]{0f, 0.45f, 0.8f, 1f}, Shader.TileMode.CLAMP));
+        if (oldw == 0 && w > 0) {
+            postDelayed(this::launchRocket, 180);
+        }
     }
 
     // ------------------------------------------------------------------

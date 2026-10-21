@@ -12,8 +12,11 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,12 +47,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Màn hình minh họa Property Animation:
- * - Nhân vật trên sân khấu (MascotCharacterView) được vẽ bằng Canvas, tự động chớp mắt,
- *   liếc mắt theo hướng di chuyển và có vành đai xoay quanh.
- * - Minh họa 8 kiểu chuyển động: Move, Rotate, Scale, Fade, Bounce (Squash & Stretch),
- *   Orbit, Wave và Combo (AnimatorSet).
- * - Đồ thị Interpolator hiển thị đường cong gia tốc theo thời gian thực.
+ * Màn hình minh họa Property Animation theo chuẩn Motion Inspector Studio:
+ * - Sân khấu Viewport tích hợp thước đo tọa độ (Rulers), dư ảnh Onion-Skinning và
+ *   thanh thông số thời gian thực (TX, TY, ROT, SCALE, ALPHA).
+ * - Vật thể cơ học đa lớp (KineticObjectView) với 4 kiểu thiết kế hình học chuẩn xác.
+ * - Đồ thị đường cong gia tốc Interpolator hiển thị miền diện tích và con trỏ thời gian thực.
  */
 public class AnimationActivity extends AppCompatActivity {
 
@@ -67,7 +69,9 @@ public class AnimationActivity extends AppCompatActivity {
     private TextView tvDuration;
     private MaterialButton btnSwitchShape;
 
-    private MascotCharacterView mascotView;
+    private final List<MaterialButton> modeButtons = new ArrayList<>();
+
+    private KineticObjectView mascotView;
     private StageBackdropView stageBackdrop;
     private InterpolatorGraphView interpGraph;
 
@@ -96,11 +100,9 @@ public class AnimationActivity extends AppCompatActivity {
 
         target.setCameraDistance(8000f * getResources().getDisplayMetrics().density);
 
-        // Gắn nhân vật động vào trong target
-        mascotView = new MascotCharacterView(this);
+        mascotView = new KineticObjectView(this);
         target.addView(mascotView);
 
-        // Gắn nền sân khấu và đồ thị Interpolator
         FrameLayout stageHolder = findViewById(R.id.stageCanvasHolder);
         stageBackdrop = new StageBackdropView(this);
         stageHolder.addView(stageBackdrop);
@@ -115,22 +117,18 @@ public class AnimationActivity extends AppCompatActivity {
 
         setupInterpolatorChips();
         setupDurationAndLoop();
+        setupModeButtons();
 
-        findViewById(R.id.btnMove).setOnClickListener(v -> playMove());
-        findViewById(R.id.btnRotate).setOnClickListener(v -> playRotate());
-        findViewById(R.id.btnScale).setOnClickListener(v -> playScale());
-        findViewById(R.id.btnFade).setOnClickListener(v -> playFade());
-        findViewById(R.id.btnBounce).setOnClickListener(v -> playBounce());
-        findViewById(R.id.btnOrbit).setOnClickListener(v -> playOrbit());
-        findViewById(R.id.btnShake).setOnClickListener(v -> playWave());
-        findViewById(R.id.btnCombo).setOnClickListener(v -> playCombo());
-        findViewById(R.id.btnReset).setOnClickListener(v -> resetTarget(true));
+        findViewById(R.id.btnReset).setOnClickListener(v -> {
+            highlightModeButton(null);
+            resetTarget(true);
+        });
 
         target.setOnClickListener(v -> v.animate()
                 .rotationBy(360f)
-                .scaleX(1.18f).scaleY(1.18f)
+                .scaleX(1.16f).scaleY(1.16f)
                 .setDuration(420)
-                .setInterpolator(new OvershootInterpolator(2.4f))
+                .setInterpolator(new OvershootInterpolator(2.2f))
                 .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(200).start())
                 .start());
 
@@ -152,15 +150,66 @@ public class AnimationActivity extends AppCompatActivity {
         });
     }
 
+    private void setupModeButtons() {
+        int[] ids = {
+                R.id.btnMove, R.id.btnRotate, R.id.btnScale, R.id.btnFade,
+                R.id.btnBounce, R.id.btnOrbit, R.id.btnShake, R.id.btnCombo
+        };
+        Runnable[] actions = {
+                this::playMove, this::playRotate, this::playScale, this::playFade,
+                this::playBounce, this::playOrbit, this::playWave, this::playCombo
+        };
+        for (int i = 0; i < ids.length; i++) {
+            MaterialButton btn = findViewById(ids[i]);
+            final Runnable action = actions[i];
+            modeButtons.add(btn);
+            btn.setOnClickListener(v -> {
+                highlightModeButton(btn);
+                action.run();
+            });
+        }
+        highlightModeButton(null);
+    }
+
+    private void highlightModeButton(MaterialButton active) {
+        int activeBg = Color.parseColor("#FFFF6B4A");
+        int activeStroke = Color.parseColor("#FFFF866B");
+        int idleBg = Color.parseColor("#FF1E212B");
+        int idleStroke = Color.parseColor("#FF2E3240");
+        int comboStroke = Color.parseColor("#FF6366F1");
+
+        for (MaterialButton b : modeButtons) {
+            boolean isCurrent = (b == active);
+            b.setBackgroundTintList(ColorStateList.valueOf(isCurrent ? activeBg : idleBg));
+            if (isCurrent) {
+                b.setStrokeColor(ColorStateList.valueOf(activeStroke));
+                b.setTextColor(Color.WHITE);
+                b.animate().scaleX(0.94f).scaleY(0.94f).setDuration(70)
+                        .withEndAction(() -> b.animate().scaleX(1f).scaleY(1f).setDuration(180)
+                                .setInterpolator(new OvershootInterpolator(2.5f)).start())
+                        .start();
+            } else {
+                boolean isCombo = b.getId() == R.id.btnCombo;
+                b.setStrokeColor(ColorStateList.valueOf(isCombo ? comboStroke : idleStroke));
+                b.setTextColor(Color.parseColor(isCombo ? "#FFA5B4FC" : "#FFF4F4F6"));
+            }
+        }
+    }
+
     private void cycleTargetShape() {
         shapeIndex = (shapeIndex + 1) % 4;
-        String[] labels = {"Nhân vật: Bóng", "Nhân vật: Sao", "Nhân vật: Robot", "Nhân vật: Đĩa bay"};
+        String[] labels = {
+                "Vật thể: Lăng kính",
+                "Vật thể: Con quay",
+                "Vật thể: Phi thuyền",
+                "Vật thể: Bánh răng"
+        };
         btnSwitchShape.setText(labels[shapeIndex]);
         mascotView.setCharacterType(shapeIndex);
 
-        target.animate().scaleX(0.75f).scaleY(0.75f).setDuration(90)
-                .withEndAction(() -> target.animate().scaleX(1f).scaleY(1f).setDuration(280)
-                        .setInterpolator(new OvershootInterpolator(3f)).start())
+        target.animate().scaleX(0.78f).scaleY(0.78f).setDuration(85)
+                .withEndAction(() -> target.animate().scaleX(1f).scaleY(1f).setDuration(260)
+                        .setInterpolator(new OvershootInterpolator(2.6f)).start())
                 .start();
     }
 
@@ -179,10 +228,12 @@ public class AnimationActivity extends AppCompatActivity {
             chip.setChipBackgroundColor(bg);
             chip.setTextColor(text);
             chip.setChipStrokeWidth(0f);
+            chip.setTextSize(11.5f);
             chip.setOnClickListener(v -> {
                 interpolator = createInterpolator(index);
                 interpolatorName = INTERPOLATOR_NAMES[index];
                 interpGraph.setInterpolator(interpolator);
+                highlightModeButton(findViewById(R.id.btnMove));
                 playMove();
             });
             group.addView(chip);
@@ -226,7 +277,7 @@ public class AnimationActivity extends AppCompatActivity {
     }
 
     // ------------------------------------------------------------------
-    // Các chế độ Animation
+    // 8 Chế độ Animation
     // ------------------------------------------------------------------
 
     private void playMove() {
@@ -270,8 +321,8 @@ public class AnimationActivity extends AppCompatActivity {
     }
 
     private void playScale() {
-        PropertyValuesHolder sx = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.8f, 0.8f, 1f);
-        PropertyValuesHolder sy = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.8f, 0.8f, 1f);
+        PropertyValuesHolder sx = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.75f, 0.78f, 1f);
+        PropertyValuesHolder sy = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.75f, 0.78f, 1f);
         ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(target, sx, sy);
         scale.setDuration(duration);
         scale.setInterpolator(interpolator);
@@ -285,7 +336,7 @@ public class AnimationActivity extends AppCompatActivity {
         AnimatorSet set = new AnimatorSet();
         set.playTogether(scale, shadowScale);
         start(set, duration,
-                "PropertyValuesHolder.ofFloat(\"scaleX/Y\", 1f, 1.8f, 1f)");
+                "PropertyValuesHolder.ofFloat(\"scaleX/Y\", 1f, 1.75f, 1f)");
     }
 
     private void playFade() {
@@ -294,7 +345,7 @@ public class AnimationActivity extends AppCompatActivity {
         fade.setInterpolator(interpolator);
         applyRepeat(fade);
 
-        ObjectAnimator shadowFade = ObjectAnimator.ofFloat(shadow, View.ALPHA, 0.38f, 0.05f, 0.38f);
+        ObjectAnimator shadowFade = ObjectAnimator.ofFloat(shadow, View.ALPHA, 0.35f, 0.05f, 0.35f);
         shadowFade.setDuration(duration * 2);
         shadowFade.setInterpolator(interpolator);
         applyRepeat(shadowFade);
@@ -339,7 +390,7 @@ public class AnimationActivity extends AppCompatActivity {
 
     private void playOrbit() {
         final float rx = maxHorizontalDistance() * 0.70f;
-        final float ry = maxVerticalDistance() * 0.65f;
+        final float ry = maxVerticalDistance() * 0.62f;
         ValueAnimator orbit = ValueAnimator.ofFloat(0f, (float) (2 * Math.PI));
         orbit.setDuration(duration * 2);
         orbit.setInterpolator(interpolator);
@@ -357,18 +408,18 @@ public class AnimationActivity extends AppCompatActivity {
             shadow.setScaleX(0.8f + 0.3f * (float) Math.cos(angle));
         });
         start(orbit, duration * 2,
-                "ValueAnimator.ofFloat(0f, 2*PI) // Quỹ đạo tròn (sin, cos)");
+                "ValueAnimator.ofFloat(0f, 2*PI) // Quỹ đạo elip (sin, cos)");
     }
 
     private void playWave() {
         float d = maxHorizontalDistance() * 0.75f;
-        float h = maxVerticalDistance() * 0.55f;
+        float h = maxVerticalDistance() * 0.52f;
         PropertyValuesHolder tx = PropertyValuesHolder.ofFloat(View.TRANSLATION_X,
                 0f, d * 0.5f, d, d * 0.5f, 0f, -d * 0.5f, -d, -d * 0.5f, 0f);
         PropertyValuesHolder ty = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y,
                 0f, -h, 0f, h, 0f, -h, 0f, h, 0f);
         PropertyValuesHolder rot = PropertyValuesHolder.ofFloat(View.ROTATION,
-                0f, 20f, -20f, 15f, -15f, 10f, -10f, 0f);
+                0f, 22f, -22f, 16f, -16f, 10f, -10f, 0f);
         ObjectAnimator wave = ObjectAnimator.ofPropertyValuesHolder(target, tx, ty, rot);
         wave.setDuration(duration * 2);
         wave.setInterpolator(interpolator);
@@ -434,7 +485,7 @@ public class AnimationActivity extends AppCompatActivity {
     }
 
     // ------------------------------------------------------------------
-    // Điều phối
+    // Điều phối & Telemetry
     // ------------------------------------------------------------------
 
     private void start(Animator animator, long totalDuration, String code) {
@@ -468,13 +519,15 @@ public class AnimationActivity extends AppCompatActivity {
 
             float curTx = target.getTranslationX();
             float curTy = target.getTranslationY();
-            mascotView.setLookDirection(curTx - prevTx, curTy - prevTy);
+            mascotView.setVelocity(curTx - prevTx, curTy - prevTy);
             prevTx = curTx;
             prevTy = curTy;
 
             float cx = stage.getWidth() / 2f + curTx;
             float cy = stage.getHeight() / 2f + curTy;
-            stageBackdrop.recordTrailPoint(cx, cy);
+            stageBackdrop.recordFrame(cx, cy, target.getRotation(),
+                    target.getScaleX(), target.getAlpha(),
+                    curTx, curTy);
         });
 
         animator.addListener(new AnimatorListenerAdapter() {
@@ -482,7 +535,7 @@ public class AnimationActivity extends AppCompatActivity {
             public void onAnimationEnd(Animator animation) {
                 if (currentAnimator == animation) {
                     currentAnimator = null;
-                    mascotView.setLookDirection(0f, 0f);
+                    mascotView.setVelocity(0f, 0f);
                 }
             }
         });
@@ -504,14 +557,14 @@ public class AnimationActivity extends AppCompatActivity {
         target.animate().cancel();
         stageBackdrop.clearTrail();
         interpGraph.setProgress(0f);
-        mascotView.setLookDirection(0f, 0f);
+        mascotView.setVelocity(0f, 0f);
 
         if (animated) {
             target.animate().translationX(0f).translationY(0f)
                     .rotation(0f).rotationX(0f).rotationY(0f)
                     .scaleX(1f).scaleY(1f).alpha(1f)
                     .setDuration(300).setInterpolator(new OvershootInterpolator(1.4f)).start();
-            shadow.animate().translationX(0f).translationY(0f).scaleX(1f).alpha(0.38f).setDuration(300).start();
+            shadow.animate().translationX(0f).translationY(0f).scaleX(1f).alpha(0.35f).setDuration(300).start();
             tvCode.setText(R.string.anim_hint);
         } else {
             target.setTranslationX(0f);
@@ -525,16 +578,16 @@ public class AnimationActivity extends AppCompatActivity {
             shadow.setTranslationX(0f);
             shadow.setTranslationY(0f);
             shadow.setScaleX(1f);
-            shadow.setAlpha(0.38f);
+            shadow.setAlpha(0.35f);
         }
     }
 
     private float maxHorizontalDistance() {
-        return Math.max(0f, (stage.getWidth() - target.getWidth()) / 2f - dp(16));
+        return Math.max(0f, (stage.getWidth() - target.getWidth()) / 2f - dp(18));
     }
 
     private float maxVerticalDistance() {
-        return Math.max(0f, (stage.getHeight() - target.getHeight()) / 2f - dp(24));
+        return Math.max(0f, (stage.getHeight() - target.getHeight()) / 2f - dp(32));
     }
 
     private float dp(float value) {
@@ -553,18 +606,19 @@ public class AnimationActivity extends AppCompatActivity {
     }
 
     // =========================================================================
-    // Nhân vật Mascot vẽ bằng Canvas: tự động chớp mắt & liếc mắt theo vận tốc
+    // Vật thể cơ học đa lớp (KineticObjectView)
     // =========================================================================
-    private static class MascotCharacterView extends View {
+    private static class KineticObjectView extends View {
         private final float density;
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Path starPath = new Path();
+        private final Path shapePath = new Path();
+        private final RectF arcRect = new RectF();
         private int charType = 0;
-        private float lookX = 0f, lookY = 0f;
+        private float vx = 0f, vy = 0f;
         private float time = 0f;
         private long lastNanos = 0L;
 
-        MascotCharacterView(Context context) {
+        KineticObjectView(Context context) {
             super(context);
             density = getResources().getDisplayMetrics().density;
         }
@@ -574,10 +628,10 @@ public class AnimationActivity extends AppCompatActivity {
             invalidate();
         }
 
-        void setLookDirection(float vx, float vy) {
-            float maxOffset = 4.5f * density;
-            lookX = Math.max(-maxOffset, Math.min(maxOffset, vx * 0.45f));
-            lookY = Math.max(-maxOffset, Math.min(maxOffset, vy * 0.45f));
+        void setVelocity(float vx, float vy) {
+            float limit = 12f * density;
+            this.vx = Math.max(-limit, Math.min(limit, vx));
+            this.vy = Math.max(-limit, Math.min(limit, vy));
         }
 
         @Override
@@ -595,83 +649,120 @@ public class AnimationActivity extends AppCompatActivity {
 
             float cx = w / 2f;
             float cy = h / 2f;
-            float r = Math.min(w, h) * 0.42f;
+            float r = Math.min(w, h) * 0.40f;
 
-            // Vòng vệ tinh nhỏ bay quanh nhân vật
+            // Vòng đo góc cơ học ngoài cùng
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(1.6f * density);
-            paint.setColor(Color.parseColor("#55FFFFFF"));
-            canvas.drawCircle(cx, cy, r * 1.12f, paint);
+            paint.setStrokeWidth(1.2f * density);
+            paint.setColor(Color.parseColor("#38FFFFFF"));
+            canvas.drawCircle(cx, cy, r * 1.14f, paint);
 
-            float orbAngle = time * 2.5f;
-            float ox = cx + (float) Math.cos(orbAngle) * r * 1.12f;
-            float oy = cy + (float) Math.sin(orbAngle) * r * 1.12f;
+            // Hạt mốc xoay trên quỹ đạo
+            float orbA = time * 2.2f;
+            float ox = cx + (float) Math.cos(orbA) * r * 1.14f;
+            float oy = cy + (float) Math.sin(orbA) * r * 1.14f;
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.parseColor("#FDE047"));
-            canvas.drawCircle(ox, oy, 3.5f * density, paint);
+            paint.setColor(Color.parseColor("#FFFF6B4A"));
+            canvas.drawCircle(ox, oy, 2.8f * density, paint);
 
-            // Thân nhân vật theo 4 kiểu
             if (charType == 0) {
-                // Kiểu 0: Bóng Slime tròn trịa
-                paint.setColor(Color.parseColor("#6366F1"));
-                canvas.drawCircle(cx, cy, r, paint);
-                paint.setColor(Color.parseColor("#818CF8"));
-                canvas.drawCircle(cx - r * 0.25f, cy - r * 0.28f, r * 0.25f, paint);
-            } else if (charType == 1) {
-                // Kiểu 1: Ngôi sao vàng
-                paint.setColor(Color.parseColor("#F59E0B"));
-                buildStar(starPath, cx, cy, r * 1.08f);
-                canvas.drawPath(starPath, paint);
-            } else if (charType == 2) {
-                // Kiểu 2: Robot vuông bo góc có ăng-ten
-                paint.setColor(Color.parseColor("#10B981"));
-                canvas.drawLine(cx, cy - r * 1.15f, cx, cy - r * 0.8f, paint);
-                canvas.drawCircle(cx, cy - r * 1.15f, 3.5f * density, paint);
-                canvas.drawRoundRect(cx - r * 0.88f, cy - r * 0.82f,
-                        cx + r * 0.88f, cy + r * 0.88f,
-                        r * 0.35f, r * 0.35f, paint);
-            } else {
-                // Kiểu 3: Đĩa bay UFO
-                paint.setColor(Color.parseColor("#38BDF8"));
-                canvas.drawOval(cx - r * 0.65f, cy - r * 0.78f, cx + r * 0.65f, cy + r * 0.1f, paint);
-                paint.setColor(Color.parseColor("#F43F5E"));
-                canvas.drawOval(cx - r * 1.08f, cy - r * 0.22f, cx + r * 1.08f, cy + r * 0.55f, paint);
-            }
+                // Kiểu 0: Khối Lăng kính Quang học đa lớp (Prism Squircle)
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.parseColor("#FFFF6B4A"));
+                canvas.drawRoundRect(cx - r, cy - r, cx + r, cy + r,
+                        r * 0.42f, r * 0.42f, paint);
 
-            // Đôi mắt chớp tự nhiên mỗi 3.2 giây
-            boolean blinking = (time % 3.2f) > 3.05f;
-            float eyeSpacing = r * 0.34f;
-            float eyeY = cy - r * 0.06f + lookY * 0.5f;
-
-            if (blinking) {
+                // Viền sáng nội thất
                 paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(2.2f * density);
+                paint.setStrokeWidth(1.5f * density);
+                paint.setColor(Color.parseColor("#55FFFFFF"));
+                canvas.drawRoundRect(cx - r * 0.82f, cy - r * 0.82f,
+                        cx + r * 0.82f, cy + r * 0.82f,
+                        r * 0.32f, r * 0.32f, paint);
+
+                // Khối thoi trung tâm lệch nhẹ theo vận tốc (Parallax Core)
+                float px = cx + vx * 0.35f;
+                float py = cy + vy * 0.35f;
+                float d = r * 0.44f;
+                shapePath.reset();
+                shapePath.moveTo(px, py - d);
+                shapePath.lineTo(px + d, py);
+                shapePath.lineTo(px, py + d);
+                shapePath.lineTo(px - d, py);
+                shapePath.close();
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.parseColor("#FF15171E"));
+                canvas.drawPath(shapePath, paint);
+
                 paint.setColor(Color.WHITE);
-                canvas.drawLine(cx - eyeSpacing - 4f * density, eyeY, cx - eyeSpacing + 4f * density, eyeY, paint);
-                canvas.drawLine(cx + eyeSpacing - 4f * density, eyeY, cx + eyeSpacing + 4f * density, eyeY, paint);
-            } else {
+                canvas.drawCircle(px, py, r * 0.14f, paint);
+
+            } else if (charType == 1) {
+                // Kiểu 1: Con quay Gyroscope 3 vòng đồng tâm
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.parseColor("#FF1E2230"));
+                canvas.drawCircle(cx, cy, r, paint);
+
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeCap(Paint.Cap.ROUND);
+                paint.setStrokeWidth(3.2f * density);
+                paint.setColor(Color.parseColor("#FF6366F1"));
+                arcRect.set(cx - r * 0.9f, cy - r * 0.9f, cx + r * 0.9f, cy + r * 0.9f);
+                canvas.drawArc(arcRect, (time * 95f) % 360f, 250f, false, paint);
+
+                paint.setColor(Color.parseColor("#FFFF6B4A"));
+                paint.setStrokeWidth(2.6f * density);
+                arcRect.set(cx - r * 0.6f, cy - r * 0.6f, cx + r * 0.6f, cy + r * 0.6f);
+                canvas.drawArc(arcRect, (-time * 140f) % 360f, 220f, false, paint);
+
                 paint.setStyle(Paint.Style.FILL);
                 paint.setColor(Color.WHITE);
-                float eyeR = r * 0.22f;
-                canvas.drawCircle(cx - eyeSpacing, eyeY, eyeR, paint);
-                canvas.drawCircle(cx + eyeSpacing, eyeY, eyeR, paint);
+                canvas.drawCircle(cx + vx * 0.3f, cy + vy * 0.3f, r * 0.22f, paint);
 
-                // Con ngươi liếc theo hướng chạy
-                paint.setColor(Color.parseColor("#0F172A"));
-                float pupilR = eyeR * 0.52f;
-                canvas.drawCircle(cx - eyeSpacing + lookX, eyeY + lookY, pupilR, paint);
-                canvas.drawCircle(cx + eyeSpacing + lookX, eyeY + lookY, pupilR, paint);
+            } else if (charType == 2) {
+                // Kiểu 2: Phi thuyền Vector (Delta Craft)
+                canvas.save();
+                canvas.translate(cx, cy);
+                shapePath.reset();
+                shapePath.moveTo(0, -r * 1.05f);
+                shapePath.lineTo(r * 0.88f, r * 0.85f);
+                shapePath.lineTo(0, r * 0.45f);
+                shapePath.lineTo(-r * 0.88f, r * 0.85f);
+                shapePath.close();
+
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.parseColor("#FF10B981"));
+                canvas.drawPath(shapePath, paint);
+
+                // Buồng lái
+                paint.setColor(Color.parseColor("#FF111318"));
+                canvas.drawOval(-r * 0.22f, -r * 0.38f, r * 0.22f, r * 0.22f, paint);
+                paint.setColor(Color.WHITE);
+                canvas.drawCircle(0, -r * 0.14f, r * 0.09f, paint);
+                canvas.restore();
+
+            } else {
+                // Kiểu 3: Bánh răng cơ học 8 đỉnh (Precision Star Gear)
+                buildGearStar(shapePath, cx, cy, r * 1.04f, r * 0.72f, 8, time * 0.6f);
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.parseColor("#FFF59E0B"));
+                canvas.drawPath(shapePath, paint);
+
+                paint.setColor(Color.parseColor("#FF15171E"));
+                canvas.drawCircle(cx, cy, r * 0.45f, paint);
+                paint.setColor(Color.WHITE);
+                canvas.drawCircle(cx + vx * 0.25f, cy + vy * 0.25f, r * 0.18f, paint);
             }
 
             postInvalidateOnAnimation();
         }
 
-        private void buildStar(Path path, float cx, float cy, float outerR) {
+        private void buildGearStar(Path path, float cx, float cy, float outerR, float innerR, int points, float phase) {
             path.reset();
-            float innerR = outerR * 0.52f;
-            for (int i = 0; i < 10; i++) {
+            int total = points * 2;
+            for (int i = 0; i < total; i++) {
                 float rad = (i % 2 == 0) ? outerR : innerR;
-                double a = -Math.PI / 2 + i * Math.PI / 5;
+                double a = phase + i * Math.PI / points;
                 float px = cx + (float) (Math.cos(a) * rad);
                 float py = cy + (float) (Math.sin(a) * rad);
                 if (i == 0) path.moveTo(px, py);
@@ -682,54 +773,83 @@ public class AnimationActivity extends AppCompatActivity {
     }
 
     // =========================================================================
-    // Nền sân khấu: Lưới nhẹ + Vệt chuyển động mượt
+    // Sân khấu Viewport: Thước đo Rulers + Dư ảnh Onion-Skinning + Telemetry Bar
     // =========================================================================
     private static class StageBackdropView extends View {
-        private static final int MAX_TRAIL = 32;
+        private static final int MAX_TRAIL = 36;
 
         private final float density;
         private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint rulerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint trailPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint onionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint markerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint hudPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path trailPath = new Path();
 
+        // Mỗi phần tử: {x, y, rot, scale}
         private final List<float[]> trail = new ArrayList<>();
         private float markerX = -1f, markerY = -1f, markerAlpha = 0f, markerRadius = 0f;
+        private float liveTx = 0f, liveTy = 0f, liveRot = 0f, liveScale = 1f, liveAlpha = 1f;
 
         StageBackdropView(Context context) {
             super(context);
             density = getResources().getDisplayMetrics().density;
 
-            gridPaint.setColor(Color.parseColor("#12FFFFFF"));
+            gridPaint.setColor(Color.parseColor("#16FFFFFF"));
             gridPaint.setStrokeWidth(1f);
+
+            axisPaint.setColor(Color.parseColor("#14FFFFFF"));
+            axisPaint.setStrokeWidth(1f);
+
+            rulerPaint.setColor(Color.parseColor("#36FFFFFF"));
+            rulerPaint.setStrokeWidth(1f);
 
             trailPaint.setStyle(Paint.Style.STROKE);
             trailPaint.setStrokeCap(Paint.Cap.ROUND);
             trailPaint.setStrokeJoin(Paint.Join.ROUND);
-            trailPaint.setStrokeWidth(2.5f * density);
-            trailPaint.setColor(Color.parseColor("#66818CF8"));
+            trailPaint.setStrokeWidth(2f * density);
+            trailPaint.setColor(Color.parseColor("#88FF6B4A"));
+
+            onionPaint.setStyle(Paint.Style.STROKE);
+            onionPaint.setStrokeWidth(1.2f * density);
+            onionPaint.setColor(Color.parseColor("#FFFF6B4A"));
 
             markerPaint.setStyle(Paint.Style.STROKE);
-            markerPaint.setStrokeWidth(2f * density);
-            markerPaint.setColor(Color.parseColor("#38BDF8"));
+            markerPaint.setStrokeWidth(1.8f * density);
+            markerPaint.setColor(Color.parseColor("#FFFF6B4A"));
+
+            hudPaint.setColor(Color.parseColor("#999EA4B4"));
+            hudPaint.setTextSize(10f * density);
+            hudPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
         }
 
-        void recordTrailPoint(float x, float y) {
+        void recordFrame(float x, float y, float rot, float scale, float alpha, float tx, float ty) {
             if (trail.size() >= MAX_TRAIL) trail.remove(0);
-            trail.add(new float[]{x, y});
+            trail.add(new float[]{x, y, rot, scale});
+            liveTx = tx / density;
+            liveTy = ty / density;
+            liveRot = rot;
+            liveScale = scale;
+            liveAlpha = alpha;
             invalidate();
         }
 
         void clearTrail() {
             trail.clear();
+            liveTx = 0f;
+            liveTy = 0f;
+            liveRot = 0f;
+            liveScale = 1f;
+            liveAlpha = 1f;
             invalidate();
         }
 
         void spawnTargetMarker(float x, float y) {
             markerX = x;
             markerY = y;
-            markerRadius = 8f * density;
+            markerRadius = 6f * density;
             markerAlpha = 1f;
             invalidate();
         }
@@ -739,14 +859,33 @@ public class AnimationActivity extends AppCompatActivity {
             super.onDraw(canvas);
             int w = getWidth();
             int h = getHeight();
-            float step = 30f * density;
+            if (w == 0 || h == 0) return;
 
+            float cx = w / 2f;
+            float cy = h / 2f;
+
+            // Trục tọa độ trung tâm Viewport
+            canvas.drawLine(0, cy, w, cy, axisPaint);
+            canvas.drawLine(cx, 0, cx, h, axisPaint);
+
+            // Lưới chấm kỹ thuật
+            float step = 28f * density;
             for (float x = step; x < w; x += step) {
                 for (float y = step; y < h; y += step) {
-                    canvas.drawCircle(x, y, 1.2f * density, gridPaint);
+                    canvas.drawCircle(x, y, 1.1f * density, gridPaint);
                 }
             }
 
+            // Vạch thước đo Rulers cạnh trái và cạnh dưới
+            float tickStep = 14f * density;
+            int tickIdx = 0;
+            for (float x = tickStep; x < w - tickStep; x += tickStep) {
+                float len = (tickIdx % 5 == 0) ? 6f * density : 3f * density;
+                canvas.drawLine(x, h - len, x, h, rulerPaint);
+                tickIdx++;
+            }
+
+            // Quỹ đạo & Dư ảnh Onion-Skinning
             int n = trail.size();
             if (n > 1) {
                 trailPath.reset();
@@ -757,34 +896,50 @@ public class AnimationActivity extends AppCompatActivity {
                 }
                 canvas.drawPath(trailPath, trailPaint);
 
-                for (int i = 0; i < n; i += 3) {
+                // Vẽ 4 khung dư ảnh (Onion-Skin Ghosts) dọc theo quỹ đạo
+                for (int i = Math.max(0, n - 24); i < n - 3; i += 6) {
                     float ratio = (i + 1f) / n;
                     float[] pt = trail.get(i);
-                    dotPaint.setColor(Color.parseColor("#818CF8"));
-                    dotPaint.setAlpha((int) (ratio * 130));
-                    canvas.drawCircle(pt[0], pt[1], (2f + 3.5f * ratio) * density, dotPaint);
+                    float sz = 18f * density * pt[3];
+                    canvas.save();
+                    canvas.translate(pt[0], pt[1]);
+                    canvas.rotate(pt[2]);
+                    onionPaint.setAlpha((int) (ratio * 85));
+                    canvas.drawRoundRect(-sz, -sz, sz, sz, 7f * density, 7f * density, onionPaint);
+                    canvas.restore();
                 }
             }
 
+            // Vòng tâm điểm khi chạm
             if (markerAlpha > 0.02f) {
-                markerPaint.setAlpha((int) (markerAlpha * 200));
+                markerPaint.setAlpha((int) (markerAlpha * 210));
                 canvas.drawCircle(markerX, markerY, markerRadius, markerPaint);
-                markerRadius += 2.2f * density;
-                markerAlpha *= 0.90f;
+                markerRadius += 2.0f * density;
+                markerAlpha *= 0.89f;
                 postInvalidateOnAnimation();
             }
+
+            // Thanh Telemetry thời gian thực góc dưới sân khấu
+            String telemetry = String.format(Locale.US,
+                    "X:%+4.0fdp  Y:%+4.0fdp  ROT:%3.0f°  SCL:%.2fx  ALP:%.2f",
+                    liveTx, liveTy, liveRot % 360f, liveScale, liveAlpha);
+            canvas.drawText(telemetry, 14f * density, h - 12f * density, hudPaint);
         }
     }
 
     // =========================================================================
-    // Đồ thị đường cong gia tốc Interpolator
+    // Đồ thị đường cong gia tốc Interpolator (Oscilloscope View)
     // =========================================================================
     private static class InterpolatorGraphView extends View {
         private final float density;
         private final Paint guidePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint curvePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path curvePath = new Path();
+        private final Path fillPath = new Path();
 
         private Interpolator interpolator = new AccelerateDecelerateInterpolator();
         private float progress = 0f;
@@ -798,12 +953,19 @@ public class AnimationActivity extends AppCompatActivity {
             guidePaint.setStyle(Paint.Style.STROKE);
             guidePaint.setPathEffect(new DashPathEffect(new float[]{4 * density, 4 * density}, 0));
 
-            curvePaint.setColor(Color.parseColor("#818CF8"));
+            curvePaint.setColor(Color.parseColor("#FFFF6B4A"));
+            curvePaint.setStrokeWidth(2.2f * density);
             curvePaint.setStyle(Paint.Style.STROKE);
-            curvePaint.setStrokeWidth(2.4f * density);
             curvePaint.setStrokeCap(Paint.Cap.ROUND);
 
+            cursorPaint.setColor(Color.parseColor("#44FFFFFF"));
+            cursorPaint.setStrokeWidth(1f * density);
+
             dotPaint.setStyle(Paint.Style.FILL);
+
+            labelPaint.setColor(Color.parseColor("#999EA4B4"));
+            labelPaint.setTextSize(9.5f * density);
+            labelPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
         }
 
         void setInterpolator(Interpolator interp) {
@@ -811,9 +973,18 @@ public class AnimationActivity extends AppCompatActivity {
             invalidate();
         }
 
-        void setProgress(float t) {
-            this.progress = Math.max(0f, Math.min(1f, t));
+        void setProgress(float fraction) {
+            this.progress = Math.max(0f, Math.min(1f, fraction));
             invalidate();
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            fillPaint.setShader(new LinearGradient(0, 0, 0, h,
+                    Color.parseColor("#38FF6B4A"),
+                    Color.parseColor("#00FF6B4A"),
+                    Shader.TileMode.CLAMP));
         }
 
         @Override
@@ -823,34 +994,52 @@ public class AnimationActivity extends AppCompatActivity {
             int h = getHeight();
             if (w == 0 || h == 0) return;
 
-            float padX = 12f * density;
+            float padX = 10f * density;
             float padY = 12f * density;
-            float plotW = w - padX * 2f;
-            float plotH = h - padY * 2f;
+            float usableW = w - padX * 2f;
+            float usableH = h - padY * 2f;
 
-            float y0 = h - padY;
-            float y1 = padY;
-            canvas.drawLine(padX, y0, w - padX, y0, guidePaint);
-            canvas.drawLine(padX, y1, w - padX, y1, guidePaint);
+            // Đường chuẩn y = 0 và y = 1
+            canvas.drawLine(padX, padY, w - padX, padY, guidePaint);
+            canvas.drawLine(padX, h - padY, w - padX, h - padY, guidePaint);
 
             curvePath.reset();
-            int samples = 75;
+            fillPath.reset();
+            int samples = 64;
             for (int i = 0; i <= samples; i++) {
                 float t = i / (float) samples;
-                float ft = interpolator.getInterpolation(t);
-                float x = padX + t * plotW;
-                float y = y0 - ft * plotH;
-                if (i == 0) curvePath.moveTo(x, y);
-                else curvePath.lineTo(x, y);
+                float v = interpolator.getInterpolation(t);
+                float x = padX + t * usableW;
+                float y = (h - padY) - v * usableH;
+                if (i == 0) {
+                    curvePath.moveTo(x, y);
+                    fillPath.moveTo(x, h - padY);
+                    fillPath.lineTo(x, y);
+                } else {
+                    curvePath.lineTo(x, y);
+                    fillPath.lineTo(x, y);
+                }
             }
+            fillPath.lineTo(w - padX, h - padY);
+            fillPath.close();
+
+            canvas.drawPath(fillPath, fillPaint);
             canvas.drawPath(curvePath, curvePaint);
 
-            float curFt = interpolator.getInterpolation(progress);
-            float cx = padX + progress * plotW;
-            float cy = y0 - curFt * plotH;
+            float curV = interpolator.getInterpolation(progress);
+            float dotX = padX + progress * usableW;
+            float dotY = (h - padY) - curV * usableH;
 
-            dotPaint.setColor(Color.parseColor("#38BDF8"));
-            canvas.drawCircle(cx, cy, 4.5f * density, dotPaint);
+            // Đường quét dọc (Playhead)
+            canvas.drawLine(dotX, 4f * density, dotX, h - 4f * density, cursorPaint);
+
+            dotPaint.setColor(Color.parseColor("#55FF6B4A"));
+            canvas.drawCircle(dotX, dotY, 7f * density, dotPaint);
+            dotPaint.setColor(Color.WHITE);
+            canvas.drawCircle(dotX, dotY, 3.2f * density, dotPaint);
+
+            String info = String.format(Locale.US, "t=%.2f  v=%.2f", progress, curV);
+            canvas.drawText(info, padX + 4f * density, padY + 10f * density, labelPaint);
         }
     }
 }

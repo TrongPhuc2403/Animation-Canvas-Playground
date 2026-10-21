@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".drawing.DrawingActivity">
 
-    <!-- Header -->
+    <!-- Header Studio -->
     <LinearLayout style="@style/ScreenHeader">
 
         <ImageButton
@@ -20,7 +20,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -67,7 +67,7 @@
             android:src="@drawable/ic_delete" />
     </LinearLayout>
 
-    <!-- Vùng vẽ Custom View -->
+    <!-- Vùng vẽ Artboard Custom View -->
     <com.example.animationcanvas.drawing.DrawingView
         android:id="@+id/drawingView"
         android:layout_width="match_parent"
@@ -78,7 +78,7 @@
         android:background="@drawable/bg_canvas_paper"
         android:elevation="4dp" />
 
-    <!-- Bảng công cụ -->
+    <!-- Bảng điều khiển Studio Dock -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -181,7 +181,7 @@
                     android:layout_height="36dp"
                     android:layout_marginEnd="6dp"
                     android:checkable="true"
-                    android:text="Đối xứng gương"
+                    android:text="Đối xứng 4x"
                     android:textColor="@color/tool_text"
                     android:textSize="11.5sp"
                     app:checkedIconVisible="false"
@@ -206,7 +206,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:checkable="true"
-                    android:text="Nền tối"
+                    android:text="Nền bảng tối"
                     android:textColor="@color/tool_text"
                     android:textSize="11.5sp"
                     app:checkedIconVisible="false"
@@ -215,7 +215,7 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- Bảng màu -->
+        <!-- Bảng màu họa sĩ -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -225,7 +225,7 @@
             <LinearLayout
                 android:id="@+id/colorPalette"
                 android:layout_width="wrap_content"
-                android:layout_height="42dp"
+                android:layout_height="40dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" />
         </HorizontalScrollView>
@@ -250,12 +250,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:max="54"
-                android:progressTint="@color/accent_pink"
-                android:thumbTint="@color/accent_pink" />
+                android:progressTint="@color/accent_primary"
+                android:thumbTint="@color/accent_primary" />
 
             <FrameLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp">
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_round_button">
 
                 <View
                     android:id="@+id/sizePreview"
